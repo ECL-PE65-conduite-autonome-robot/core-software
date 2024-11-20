@@ -30,6 +30,8 @@ cmake .. && make -j4
 sudo make install
 sudo ldconfig # Refreshing the link library
 
+sudo apt install nlohmann-json3-dev
+
 sudo apt upgrade
 
 cd "$ROS2_WS"
@@ -52,7 +54,6 @@ fi
 cd "$ROS2_WS/src/ros2_astra_camera/astra_camera/scripts"
 sudo bash install.sh
 sudo udevadm control --reload-rules && sudo udevadm trigger
-
 
 echo "Project build"
 cd "$ROS2_WS"

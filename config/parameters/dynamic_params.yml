@@ -1,0 +1,17 @@
+astra_camera:
+  name: Astra Camera
+  description: "This is a description"
+  package_name: astra_camera
+  node_name: astra_camera_node
+  launch_file: astra_camera.launch
+  params:
+    param1:
+      type: int
+      value: 1
+      description: "This is a description"
+      range: [0, 10]
+    param2:
+      type: float
+      value: 1.0
+      description: "This is a description"
+      range: [0.0, 10.0]

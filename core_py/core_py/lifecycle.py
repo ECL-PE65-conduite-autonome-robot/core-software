@@ -1,4 +1,6 @@
 import subprocess
+from core_py.sensor import Sensor
+from core_py.srv import ReloadParams, StartSensor, StopSensor  # Import du service
 import rclpy
 from rclpy.node import Node
 import yaml
@@ -26,10 +28,19 @@ class LifeCycle(Node):
         self.get_logger().info(f"Boot completed in {datetime.now() - self.__start_date} seconds.")
         self.launch_sensors()
         self.running()
+        self.launch_services()
 
     def running(self):
         self.get_logger().info(f"Running...")
-
+        
+    def launch_services(self):
+        # Création des services
+        self.get_logger(f"Creating services...")
+        self.srv_reload = self.create_service(ReloadParams, 'reload_params', self.reload_parameters_callback)
+        self.srv_start_sensor = self.create_service(StartSensor, 'start_sensor', self.start_sensor_callback)
+        self.srv_stop_sensor = self.create_service(StopSensor, 'stop_sensor', self.stop_sensor_callback)
+        self.get_logger(f"Services launched !")
+        
     def load_parameters(self):
         self.get_logger().info(f"Loading parameters...")
 
@@ -79,48 +90,18 @@ class LifeCycle(Node):
             self.get_logger().info(f"Sensor {sensor_name} launched!")
         
         self.get_logger().info("(X/X) Sensors launched!")
-        
-
-class Sensor:
-    def __init__(self, config):
-        self.config = config
-        self.name = config.get("name")
-        self.description = config.get("description")
-        self.type = config.get("type")
-        self.package_name = config.get("package_name")
-        self.node_name = config.get("node_name")
-        self.launch_file = config.get("launch_file")
-        self.params = config.get("params")
-        self.process = None
-        self.init()
     
-    def init(self):
-        print(f"Initializing sensor {self.name}...")
-        print(f"Description: {self.description}")
-        print(f"Type: {self.type}")
-        print(f"Package: {self.package_name}")
-        print(f"Node: {self.node_name}")
-        print(f"Launch file: {self.launch_file}")
-        print(f"Parameters: {len(self.params)}")
-        print(f"Sensor {self.name} initialized!")
-        
-    def start_sensor(self):
-        if not self.process:
-            self.process = subprocess.Popen(["ros2", "launch", self.package_name, self.launch_file])
-            response = (True, "Sensor started")
-        else:
-            response = (False, "Sensor already running")
-        return response
+    def verify_config(self):
+        pass
+    
 
-    def stop_sensor(self):
-        if self.process:
-            self.process.terminate()
-            self.process.wait()
-            self.process = None
-            response = (True, "Sensor stopped")
-        else:
-            response = (False, "Sensor not running")
-        return response
+# Topic update config
+# Service reload config
+# Service update param
+# Action server change param, mode
+#
+
+a=0
 
 def main(args=None):
     rclpy.init(args=args)

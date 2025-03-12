@@ -1,0 +1,23 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/warix/pe65/core-software/install/astra_camera/include/**",
+        "/home/warix/pe65/core-software/install/astra_camera_msgs/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/warix/pe65/core-software/src/ros2_astra_camera/astra_camera/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

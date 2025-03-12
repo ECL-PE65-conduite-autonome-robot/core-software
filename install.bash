@@ -2,7 +2,7 @@
 
 source /opt/ros/humble/setup.bash
 
-ROS2_WS=~/pe65/core-software
+ROS2_WS=/home/pe65/core-software
 
 if [ -z "$ROS_DISTRO" ]; then
     echo "ROS 2 n'est pas configuré. Assurez-vous que ROS 2 est installé et configuré avant d'exécuter ce script."

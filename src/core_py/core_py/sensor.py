@@ -10,6 +10,7 @@ class Sensor:
         self.node_name = config.get("node_name")
         self.launch_file = config.get("launch_file")
         self.params = config.get("params")
+        self.enabled = config.get("enabled")
         self.process = None
         self.init()
     
@@ -24,14 +25,20 @@ class Sensor:
         print(f"Sensor {self.name} initialized!")
         
     def start_sensor(self):
+        # TODO: Modify the static configuration file (enabled = True)
         if not self.process:
-            self.process = subprocess.Popen(["ros2", "launch", self.package_name, self.launch_file])
-            response = (True, "Sensor started")
+            try:
+                self.process = subprocess.Popen(["ros2", "launch", self.package_name, self.launch_file])
+                response = (True, "Sensor started")
+            except Exception as e:
+                response = (False, f"Error starting sensor: {e}")
         else:
             response = (False, "Sensor already running")
         return response
 
     def stop_sensor(self):
+        # TODO: Modify the static configuration file (enabled = False)
+
         if self.process:
             self.process.terminate()
             self.process.wait()

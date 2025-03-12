@@ -1,6 +1,5 @@
-import subprocess
 from core_py.sensor import Sensor
-from core_py.srv import ReloadParams, StartSensor, StopSensor  # Import du service
+from core_interfaces.srv import ReloadParams, StartSensor, StopSensor  # Import du service
 import rclpy
 from rclpy.node import Node
 import yaml
@@ -25,21 +24,21 @@ class LifeCycle(Node):
         self.get_logger().info(f"Booting up in mode: {self.__mode}...")
 
         self.load_parameters()
-        self.get_logger().info(f"Boot completed in {datetime.now() - self.__start_date} seconds.")
-        self.launch_sensors()
-        self.running()
         self.launch_services()
+        self.launch_sensors()
+        self.get_logger().info(f"Boot completed in {datetime.now() - self.__start_date} seconds.")
+        self.running()
 
     def running(self):
         self.get_logger().info(f"Running...")
         
     def launch_services(self):
         # Création des services
-        self.get_logger(f"Creating services...")
+        self.get_logger().info(f"Creating services...")
         self.srv_reload = self.create_service(ReloadParams, 'reload_params', self.reload_parameters_callback)
-        self.srv_start_sensor = self.create_service(StartSensor, 'start_sensor', self.start_sensor_callback)
-        self.srv_stop_sensor = self.create_service(StopSensor, 'stop_sensor', self.stop_sensor_callback)
-        self.get_logger(f"Services launched !")
+        self.srv_start_sensor = self.create_service(StartSensor, 'start_sensor', self.start_sensor)
+        self.srv_stop_sensor = self.create_service(StopSensor, 'stop_sensor', self.stop_sensor)
+        self.get_logger().info(f"Services launched !")
         
     def load_parameters(self):
         self.get_logger().info(f"Loading parameters...")
@@ -79,29 +78,59 @@ class LifeCycle(Node):
                     self.get_logger().error(f"Error loading dynamic_params.yml: {e}")
         else:
             self.get_logger().warn("Dynamic config file not found!")
-            
+    
+    def reload_parameters_callback(self, request, response):
+        try:
+            self.reload_dynamic_parameters()
+            response.success = True
+            response.message = "Parameters reloaded"
+        except Exception as e:
+            response.success = False
+            response.message = f"Error reloading parameters: {e}"
+        return response
+    
     def launch_sensors(self):
         self.get_logger().info(f"Launching {len(self.params)} sensors...")
         
         for sensor_name, sensor_config in self.params.items():
             sensor = Sensor(sensor_config)
             self.sensors.append(sensor)
-            sensor.start_sensor()
+            if sensor.enabled:
+                sensor.start_sensor()
             self.get_logger().info(f"Sensor {sensor_name} launched!")
         
         self.get_logger().info("(X/X) Sensors launched!")
+    
+    def start_sensor(self, request, response):
+        self.get_logger().info(f"Requested to start sensor: {request.sensor_name} ...")
+        for sensor in self.sensors:
+            if sensor.name == request.sensor_name:
+                response.success, response.message = sensor.start_sensor()
+                return response
+            
+        response.success = False
+        response.message = "Sensor not found"
+        return response
+    
+    def stop_sensor(self, request, response):
+        self.get_logger().info(f"Requested to stop sensor: {request.sensor_name} ...")
+        for sensor in self.sensors:
+            if sensor.name == request.sensor_name:
+                response.success, response.message = sensor.stop_sensor()
+                return response
+
+        response.success = False
+        response.message = "Sensor not found"
+        return response
     
     def verify_config(self):
         pass
     
 
 # Topic update config
-# Service reload config
 # Service update param
 # Action server change param, mode
 #
-
-a=0
 
 def main(args=None):
     rclpy.init(args=args)

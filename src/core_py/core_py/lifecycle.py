@@ -1,10 +1,11 @@
 from core_py.sensor import Sensor
-from core_interfaces.srv import ReloadParams, StartSensor, StopSensor  # Import du service
+from core_interfaces.srv import ReloadParams, StartSensor, StopSensor, GetParams  # Import du service
 import rclpy
 from rclpy.node import Node
 import yaml
 from datetime import datetime
 from pathlib import Path
+import json 
 
 class LifeCycle(Node):
     def __init__(self):
@@ -38,6 +39,7 @@ class LifeCycle(Node):
         self.srv_reload = self.create_service(ReloadParams, 'reload_params', self.reload_parameters_callback)
         self.srv_start_sensor = self.create_service(StartSensor, 'start_sensor', self.start_sensor)
         self.srv_stop_sensor = self.create_service(StopSensor, 'stop_sensor', self.stop_sensor)
+        self.srv_get_params = self.create_service(GetParams,'get_params',self.get_params)
         self.get_logger().info(f"Services launched !")
         
     def load_parameters(self):
@@ -125,6 +127,11 @@ class LifeCycle(Node):
     
     def verify_config(self):
         pass
+
+    def get_params(self,request,response):
+        response.params = json.dumps(self.params)
+        return response
+
     
 
 # Topic update config

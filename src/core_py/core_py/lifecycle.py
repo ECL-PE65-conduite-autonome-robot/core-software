@@ -23,7 +23,7 @@ class LifeCycle(Node):
         self.__config_path = Path("config", "parameters") # Path to the configuration files 
         self.dynamic_config = {} # Dictionary for dynamic parameters 
         self.static_config = {} # Dictionary for static parameters
- 		self.srv_update_param = self.create_service(UpdateParam, 'update_param', self.update_param_callback)
+        self.srv_update_param = self.create_service(UpdateParam, 'update_param', self.update_param_callback)
         self.sensors = [] # list to store sensor instances 
 
         # Start the lifecycle process

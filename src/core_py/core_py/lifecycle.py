@@ -40,7 +40,7 @@ class LifeCycle(Node):
         self.srv_reload = self.create_service(ReloadParams, 'reload_params', self.reload_parameters_callback)
         self.srv_start_sensor = self.create_service(StartSensor, 'start_sensor', self.start_sensor)
         self.srv_stop_sensor = self.create_service(StopSensor, 'stop_sensor', self.stop_sensor)
-        self.srv_get_params = self.create_service(GetParams,'get_params',self.get_params)
+        self.srv_get_config = self.create_service(GetParams,'get_config',self.get_config)
         self.get_logger().info(f"Services launched !")
         
     def load_parameters(self):
@@ -129,7 +129,8 @@ class LifeCycle(Node):
     def verify_config(self):
         pass
 
-    def get_params(self,request,response):
+    def get_config(self,request,response):
+        self.get_logger().info(f"Requested to send the current config.")
         response.params = json.dumps(self.params)
         return response
     

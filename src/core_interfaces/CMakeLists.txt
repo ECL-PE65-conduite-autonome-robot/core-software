@@ -29,9 +29,11 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ReloadParams.srv"
   "srv/StartSensor.srv"
   "srv/StopSensor.srv"
-  "srv/GetParams.srv"
+  "srv/GetConfig.srv"
   "srv/ChooseCamera.srv"
   "srv/UpdateParam.srv"
+  "srv/SetMode.srv"
+  "srv/SetStatus.srv"
 )
 
 ament_package()

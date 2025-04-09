@@ -23,6 +23,7 @@ setup(
         'console_scripts': [
             'lifecycle = core_py.lifecycle:main',
             'choose_camera = core_py.services.choose_camera:main',
+            'choose_camera_client = core_py.services.choose_camera_client:main',
         ],
     },
 )

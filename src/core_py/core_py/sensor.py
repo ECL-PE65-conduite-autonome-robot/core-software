@@ -47,3 +47,9 @@ class Sensor:
         else:
             response = (False, "Sensor not running")
         return response
+
+    def update_param(self, param_name, new_value):
+        if param_name in self.config["params"]:
+            self.config["params"][param_name]["value"] = new_value
+            return True, f"Parameter {param_name} updated to {new_value}"
+        return False, f"Parameter {param_name} not found"

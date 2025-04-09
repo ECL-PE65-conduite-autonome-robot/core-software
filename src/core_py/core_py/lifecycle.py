@@ -1,5 +1,5 @@
 from core_py.sensor import Sensor
-from core_interfaces.srv import ReloadParams, StartSensor, StopSensor, GetParams  # Import du service
+from core_interfaces.srv import ReloadParams, StartSensor, StopSensor, GetParams, UpdateParam  # Import du service
 import rclpy
 from rclpy.node import Node
 import yaml
@@ -18,6 +18,7 @@ class LifeCycle(Node):
         self.__config_path = Path("config", "parameters")
         self.dynamic_config = {}
         self.static_config = {}
+        self.srv_update_param = self.create_service(UpdateParam, 'update_param', self.update_param_callback)
         self.sensors = []
         self.boot()
 
@@ -130,6 +131,66 @@ class LifeCycle(Node):
 
     def get_params(self,request,response):
         response.params = json.dumps(self.params)
+        return response
+    
+    def update_param_callback(self, request, response):
+        sensor_name = request.sensor_name
+        param_name = request.param_name
+        new_value = request.new_value
+
+        config_path = Path(self.__config_path, "dynamic_params.yml")
+        if not config_path.exists():
+            response.success = False
+            response.message = "dynamic_params.yml not found"
+            return response
+
+        try:
+            with open(config_path, "r") as f:
+                config = yaml.safe_load(f)
+
+            if sensor_name not in config:
+                response.success = False
+                response.message = "Sensor not found in config"
+                return response
+
+            if param_name not in config[sensor_name]["params"]:
+                response.success = False
+                response.message = "Parameter not found"
+                return response
+
+            # Convertir la valeur selon le type déclaré
+            param_type = config[sensor_name]["params"][param_name]["type"]
+            if param_type == "int":
+                casted_value = int(new_value)
+            elif param_type == "float":
+                casted_value = float(new_value)
+            elif param_type == "string":
+                casted_value = str(new_value)
+            else:
+                response.success = False
+                response.message = "Unsupported parameter type"
+                return response
+
+            config[sensor_name]["params"][param_name]["value"] = casted_value
+
+            with open(config_path, "w") as f:
+                yaml.dump(config, f)
+
+            # Appel de la méthode du capteur actif
+            for sensor in self.sensors:
+                if sensor.name == sensor_name:
+                    ok, msg = sensor.update_param(param_name, casted_value)
+                    response.success = ok
+                    response.message = msg
+                    return response
+
+            response.success = False
+            response.message = "Sensor not instantiated"
+
+        except Exception as e:
+            response.success = False
+            response.message = str(e)
+
         return response
 
     

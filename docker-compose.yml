@@ -1,0 +1,8 @@
+version: "3"
+services:
+  ros2:
+    build: .
+    volumes:
+      - .:/ros2_ws
+    working_dir: /ros2_ws
+    tty: true

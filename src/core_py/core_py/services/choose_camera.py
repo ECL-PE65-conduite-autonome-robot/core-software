@@ -13,14 +13,6 @@ class CameraService(Node):
         # Create the 'choose_camera' service with a callback function
         self.srv = self.create_service(ChooseCamera, 'choose_camera', self.callback)
         
-        # Dictionary mapping camera names to corresponding numbers 
-        self.camera_mapping = {
-            "camera1": 1,
-            "camera2": 2,
-            "camera3": 3,
-            "camera4": 4
-        }
-        
         # Create a client for the 'get_config' service and wait until it is available 
         self.client = self.create_client(GetConfig, 'get_config')  # Nom du service
         while not self.client.wait_for_service(timeout_sec=1.0):

@@ -1,0 +1,5 @@
+string camera_name
+---
+int32 camera_number
+bool success
+string message

@@ -1,0 +1,6 @@
+string sensor_name
+string param_name
+string new_value
+---
+bool success
+string message

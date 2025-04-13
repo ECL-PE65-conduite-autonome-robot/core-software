@@ -8,7 +8,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    container:
+      image: "ubuntu:jammy"
     strategy:
       matrix:
         ros_distro: [humble]  # You can change to rolling, iron, etc.

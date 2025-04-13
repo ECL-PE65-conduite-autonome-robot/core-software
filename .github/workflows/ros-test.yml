@@ -30,6 +30,10 @@ jobs:
           rosdep update
           rosdep install --from-paths . --ignore-src -r -y
 
+      - name: Source ros
+        run: source /opt/ros/${{matrix.ros_distro}}/setup.bash
+        shell: bash
+
       - name: Build workspace
         run: |
           colcon build --event-handlers console_direct+

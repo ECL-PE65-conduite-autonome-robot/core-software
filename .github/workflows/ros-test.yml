@@ -1,0 +1,42 @@
+name: ROS Python Package Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ros_distro: [humble]  # You can change to rolling, iron, etc.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up ROS ${{ matrix.ros_distro }}
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ matrix.ros_distro }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          rosdep update
+          rosdep install --from-paths . --ignore-src -r -y
+
+      - name: Build workspace
+        run: |
+          colcon build --event-handlers console_direct+
+
+      - name: Source workspace
+        run: source install/setup.bash
+        shell: bash
+
+      - name: Run tests
+        run: |
+          colcon test --event-handlers console_direct+
+          colcon test-result --verbose

@@ -36,11 +36,8 @@ jobs:
           colcon build --event-handlers console_direct+
         shell: bash
 
-      - name: Source workspace
-        run: source install/setup.bash
-        shell: bash
-
-      - name: Run tests
+      - name: Source workspace and run tests
         run: |
+          source install/setup.bash
           colcon test --event-handlers console_direct+
           colcon test-result --verbose

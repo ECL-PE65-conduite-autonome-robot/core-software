@@ -1,7 +1,7 @@
 FROM ros:humble
 
 # Mise à jour de base
-RUN apt update && apt install -y \
+RUN apt update && apt install -y && apt upgrade -y \
     python3-pip \
     python3-colcon-common-extensions \
     python3-yaml \
@@ -9,10 +9,11 @@ RUN apt update && apt install -y \
     ros-humble-rclpy
 
 # Création de l'espace de travail
-WORKDIR /ros2_ws
+WORKDIR /core_software
 
 # Copie des sources
 COPY ./src ./src
+COPY ./config ./config
 
 # Compilation du workspace
 RUN . /opt/ros/humble/setup.sh && colcon build

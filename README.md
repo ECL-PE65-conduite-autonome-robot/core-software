@@ -15,6 +15,10 @@ navigation of mobile robots.
 What should we do ?
 Integrate various sensors on the robot: [Rosbot Pro - Orin NX](https://eu.robotshop.com/fr/products/roboworks-rosbot-pro-orin-nx)
 
+## Docker
+
+sudo docker exec core-software-ros2-core-software-1 bash -c "source install/setup.bash && ros2 run core_py lifecycle"
+
 ## Roadmap - Sensor Integrations
 
 ### Before March 2025

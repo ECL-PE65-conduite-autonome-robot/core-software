@@ -1,8 +1,4 @@
-version: "3"
 services:
-  ros2:
+  ros2-core-software:
     build: .
-    volumes:
-      - .:/ros2_ws
-    working_dir: /ros2_ws
     tty: true

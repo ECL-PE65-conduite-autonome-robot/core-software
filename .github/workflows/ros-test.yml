@@ -19,6 +19,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Cache apt packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/package.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Cache rosdep
+        uses: actions/cache@v4
+        with:
+          path: ~/.ros/rosdep
+          key: ${{ runner.os }}-rosdep-${{ matrix.ros_distro }}-${{ hashFiles('**/package.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-rosdep-${{ matrix.ros_distro }}-
+
+
       - name: Set up ROS ${{ matrix.ros_distro }}
         uses: ros-tooling/setup-ros@v0.7
         with:

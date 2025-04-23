@@ -5,13 +5,101 @@ astra_camera:
   node_name: astra_camera_node
   launch_file: astra_camera.launch
   params:
-    param1:
+    color_width:
       type: int
-      value: 1
-      description: "This is a description"
-      range: [0, 10]
-    param2:
+      value: 640
+      description: "Largeur de l'image couleur en pixels."
+      range: [160, 1920]
+    color_height:
+      type: int
+      value: 480
+      description: "Hauteur de l'image couleur en pixels."
+      range: [120, 1080]
+    color_fps:
+      type: int
+      value: 30
+      description: "Fréquence d'images par seconde pour le flux couleur."
+      range: [1, 60]
+    enable_color:
+      type: bool
+      value: true
+      description: "Active le flux de la caméra couleur."
+    flip_color:
+      type: bool
+      value: false
+      description: "Active le retournement horizontal de l'image couleur."
+    depth_width:
+      type: int
+      value: 640
+      description: "Largeur de l'image de profondeur en pixels."
+      range: [160, 1280]
+    depth_height:
+      type: int
+      value: 480
+      description: "Hauteur de l'image de profondeur en pixels."
+      range: [120, 1024]
+    depth_fps:
+      type: int
+      value: 30
+      description: "Fréquence d'images par seconde pour le flux de profondeur."
+      range: [1, 60]
+    enable_depth:
+      type: bool
+      value: true
+      description: "Active le flux de la caméra de profondeur."
+    flip_depth:
+      type: bool
+      value: false
+      description: "Active le retournement horizontal de l'image de profondeur."
+    depth_format:
+      type: string
+      value: "Y11"
+      description: "Format de l'image de profondeur (par exemple, Y11, Z16)."
+    depth_scale:
       type: float
       value: 1.0
-      description: "This is a description"
-      range: [0.0, 10.0]
+      description: "Facteur de mise à l'échelle pour les valeurs de profondeur. Utile pour calibrer en mètres."
+      range: [0.001, 10.0]
+    ir_width:
+      type: int
+      value: 640
+      description: "Largeur de l'image infrarouge en pixels."
+      range: [160, 1280]
+    ir_height:
+      type: int
+      value: 480
+      description: "Hauteur de l'image infrarouge en pixels."
+      range: [120, 1024]
+    ir_fps:
+      type: int
+      value: 30
+      description: "Fréquence d'images par seconde pour le flux infrarouge."
+      range: [1, 60]
+    enable_ir:
+      type: bool
+      value: true
+      description: "Active le flux de la caméra infrarouge."
+    flip_ir:
+      type: bool
+      value: false
+      description: "Active le retournement horizontal de l'image infrarouge."
+    ir_format:
+      type: string
+      value: "Y10"
+      description: "Format de l'image infrarouge (par exemple, Y10, Y12)."
+    depth_align:
+      type: bool
+      value: false
+      description: "Active l'alignement matériel de la profondeur avec l'image couleur."
+    color_depth_synchronization:
+      type: bool
+      value: false
+      description: "Synchronise les images couleur et profondeur pour une correspondance temporelle plus précise."
+    publish_tf:
+      type: bool
+      value: true
+      description: "Active la publication des transformations TF entre les différentes images de la caméra."
+    tf_publish_rate:
+      type: float
+      value: 10.0
+      description: "Fréquence de publication des transformations TF en Hz."

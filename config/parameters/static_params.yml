@@ -7,13 +7,158 @@ astra_camera:
   launch_file: astra_camera.launch
   enabled: true
   params:
-    param1:
+    camera_name:
+      type: string
+      value: "camera"
+      description: "Nom unique de la caméra utilisé comme espace de noms pour les topics et les services."
+    serial_number:
+      type: string
+      value: ""
+      description: "Numéro de série de la caméra pour identifier un périphérique spécifique."
+    device_num:
       type: int
       value: 1
-      description: "This is a description"
+      description: "Numéro de l'appareil à utiliser lorsqu'il y a plusieurs caméras connectées."
       range: [0, 10]
-    param2:
-      type: float
-      value: 1.0
-      description: "This is a description"
-      range: [0.0, 10.0]
+    vendor_id:
+      type: int
+      value: 0
+      description: "Identifiant du fournisseur USB pour filtrer les périphériques spécifiques."
+      range: [0, 65535]
+    product_id:
+      type: int
+      value: 0
+      description: "Identifiant du produit USB pour filtrer les périphériques spécifiques."
+      range: [0, 65535]
+    enable_point_cloud:
+      type: bool
+      value: true
+      description: "Active la publication du nuage de points 3D."
+    enable_point_cloud_xyzrgb:
+      type: bool
+      value: false
+      description: "Active la publication du nuage de points avec des données de couleur RGB."
+    connection_delay:
+      type: int
+      value: 100
+      description: "Délai en millisecondes avant d'établir la connexion avec la caméra."
+      range: [0, 10000]
+    enable_color:
+      type: bool
+      value: true
+      description: "Active le flux de la caméra couleur."
+    color_format:
+      type: string
+      value: "RGB"
+      description: "Format de l'image couleur (par exemple, RGB, YUV)."
+      range: [0.1, 100.0]
+    ir_info_uri:
+      type: string
+      value: ""
+      description: "URI du fichier de calibration pour la caméra infrarouge."
+    color_info_uri:
+      type: string
+      value: ""
+      description: "URI du fichier de calibration pour la caméra couleur."
+    color_roi_x:
+      type: int
+      value: -1
+      description: "Coordonnée X du coin supérieur gauche de la région d'intérêt (ROI) pour l'image couleur."
+      range: [-1, 1920]
+    color_roi_y:
+      type: int
+      value: -1
+      description: "Coordonnée Y du coin supérieur gauche de la région d'intérêt (ROI) pour l'image couleur."
+      range: [-1, 1080]
+    color_roi_width:
+      type: int
+      value: -1
+      description: "Largeur de la région d'intérêt (ROI) pour l'image couleur."
+      range: [-1, 1920]
+    color_roi_height:
+      type: int
+      value: -1
+      description: "Hauteur de la région d'intérêt (ROI) pour l'image couleur."
+      range: [-1, 1080]
+    depth_roi_x:
+      type: int
+      value: -1
+      description: "Coordonnée X du coin supérieur gauche de la région d'intérêt (ROI) pour l'image de profondeur."
+      range: [-1, 1280]
+    depth_roi_y:
+      type: int
+      value: -1
+      description: "Coordonnée Y"
+
+    depth_roi_width:
+      type: int
+      value: -1
+      description: "Largeur de la région d'intérêt (ROI) sur l'image de profondeur. Mettre -1 pour désactiver."
+      range: [-1, 1280]
+
+    depth_roi_height:
+      type: int
+      value: -1
+      description: "Hauteur de la région d'intérêt (ROI) sur l'image de profondeur. Mettre -1 pour désactiver."
+      range: [-1, 1024]
+
+    use_uvc_camera:
+      type: bool
+      value: true
+      description: "Utilise une caméra UVC (USB Video Class) pour le flux vidéo couleur."
+
+    uvc_vendor_id:
+      type: string
+      value: "0x2bc5"
+      description: "Identifiant du fournisseur USB (Vendor ID) de la caméra UVC."
+
+    uvc_product_id:
+      type: string
+      value: "0x0501"
+      description: "Identifiant du produit USB (Product ID) de la caméra UVC."
+
+    uvc_retry_count:
+      type: int
+      value: 100
+      description: "Nombre de tentatives pour se connecter à la caméra UVC avant abandon."
+      range: [0, 1000]
+
+    uvc_camera_format:
+      type: string
+      value: "mjpeg"
+      description: "Format vidéo utilisé par la caméra UVC (par exemple: mjpeg, yuyv)."
+
+    uvc_flip:
+      type: bool
+      value: false
+      description: "Active le retournement horizontal de l'image issue de la caméra UVC."
+
+    oni_log_level:
+      type: string
+      value: "verbose"
+      description: "Niveau de log pour le pilote OpenNI (ex: none, error, warning, info, verbose)."
+
+    oni_log_to_console:
+      type: bool
+      value: false
+      description: "Active l'affichage des logs OpenNI dans la console."
+
+    oni_log_to_file:
+      type: bool
+      value: false
+      description: "Active l'enregistrement des logs OpenNI dans un fichier."
+
+    enable_d2c_viewer:
+      type: bool
+      value: false
+      description: "Active un visualiseur Depth-to-Color pour affichage local de l'image fusionnée."
+
+    enable_publish_extrinsic:
+      type: bool
+      value: false
+      description: "Active la publication des transformations extrinsèques entre capteurs."
+
+    enable_keep_alive:
+      type: bool
+      value: false
+      description: "Maintient la caméra active même en l'absence de souscripteurs aux topics."

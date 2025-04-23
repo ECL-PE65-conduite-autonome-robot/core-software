@@ -51,7 +51,7 @@ astra_camera:
       type: string
       value: "RGB"
       description: "Format de l'image couleur (par exemple, RGB, YUV)."
-      range: [0.1, 100.0]
+      options: ["RGB", "YUV"]
     ir_info_uri:
       type: string
       value: ""

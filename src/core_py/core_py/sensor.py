@@ -31,7 +31,7 @@ class Sensor:
                 launch_file_path = self.generate_launch_file()
                 print(f"Launch file: {launch_file_path}")
                 self.process = subprocess.Popen(["ros2", "launch", self.package_name, launch_file_path])
-                response = (True, "Sensor started")
+                response = (True, f"Sensor started with PID {self.process.pid}")
             except Exception as e:
                 response = (False, f"Error starting sensor: {e}")
         else:

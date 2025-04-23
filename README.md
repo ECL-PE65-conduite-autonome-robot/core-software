@@ -74,6 +74,22 @@ Clone the repository
 git clone https://github.com/ECL-PE65-conduite-autonome-robot/core-software.git
 ```
 
+## Build and test
+
+```
+source /opt/ros/humble/setup.bash
+colcon build
+colcon test && colon test-result --verbose
+```
+
+## Adding new sensors
+
+Add them in:
+- config/parameters/satic_params.yml
+- config/parameters/dynamic_params.yml
+
+
+
 ## Contributing
 
 Please follow our [CONTRIBUTING GUIDE](CONTRIBUTING.md)

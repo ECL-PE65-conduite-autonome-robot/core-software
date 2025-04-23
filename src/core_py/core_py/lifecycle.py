@@ -158,17 +158,25 @@ class LifeCycle(Node):
     def launch_sensors(self):
         # Initialize sensors based on the loaded parameters 
         self.get_logger().info(f"Launching {len(self.params)} sensors...")
+        launched_sensors: int = 0
         
         for sensor_name, sensor_config in self.params.items():
             sensor = Sensor(sensor_config)
             self.sensors.append(sensor)
             if sensor.enabled:
-                sensor.start_sensor() # Start the sensor if enabled 
-                self.get_logger().info(f"Sensor {sensor_name} launched!")
+                try:
+                    response = sensor.start_sensor() # Start the sensor if enabled 
+                    if response[0]:
+                        self.get_logger().info(f"Sensor {sensor_name} started successfully! ({response[1]})")
+                        launched_sensors += 1
+                    else:
+                        self.get_logger().error(f"Error starting sensor {sensor_name}: {response[1]}")
+                except Exception as e:
+                    self.get_logger().error(f"Error launching sensor {sensor_name}: {e}")
             else:
                 self.get_logger().info(f"Sensor {sensor_name} is disabled in config.")
         
-        self.get_logger().info("(X/X) Sensors launched!")
+        self.get_logger().info(f"({launched_sensors}/{len(self.params)}) Sensors launched!")
     
     def start_sensor(self, request, response):
         # Service to start a specific sensor by name 

@@ -92,13 +92,13 @@ def test_reload_parameters(rclpy_node):
     # Create request
     request = ReloadParams.Request()
 
-    # Abonnement au topic /params_update pour capturer le message
+    # Subscribing to topic /params_update to receive parameter updates
     received_msgs = []
     subscription = rclpy_node.create_subscription(
          String, '/params_update',
          lambda msg: received_msgs.append(msg),
          10)
-    
+        
     # Send request and wait for result
     future = client.call_async(request)
     rclpy.spin_until_future_complete(rclpy_node, future)
@@ -107,8 +107,9 @@ def test_reload_parameters(rclpy_node):
     response = future.result()
     assert response.success, f"Expected error, not a good status"
     
-    # Attendre jusqu'à 5s la réception d'au moins un message sur /params_update
-    timeout = time.time() + 5.0
+    # Wait for the parameter update message to be received
+    # This is a blocking wait, adjust the timeout as needed
+    timeout = time.time() + 5.0 # 5 seconds timeout
     while not received_msgs and time.time() < timeout:
-         time.sleep(0.1)
+        rclpy.spin_once(rclpy_node, timeout_sec=0.1) # Spin to allow message processing
     assert received_msgs, "Did not receive update params message on /params_update"

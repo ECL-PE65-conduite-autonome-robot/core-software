@@ -34,6 +34,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/UpdateParam.srv"
   "srv/SetMode.srv"
   "srv/SetStatus.srv"
+  "srv/Reboot.srv"
 )
 
 ament_package()

@@ -1,4 +1,5 @@
 import subprocess
+from pathlib import Path
 
 class Sensor:
     def __init__(self, config):
@@ -25,10 +26,11 @@ class Sensor:
         print(f"Sensor {self.name} initialized!")
         
     def start_sensor(self):
-        # TODO: Modify the static configuration file (enabled = True)
         if not self.process:
             try:
-                self.process = subprocess.Popen(["ros2", "launch", self.package_name, self.launch_file])
+                launch_file_path = self.generate_launch_file()
+                print(f"Launch file: {launch_file_path}")
+                self.process = subprocess.Popen(["ros2", "launch", self.package_name, launch_file_path])
                 response = (True, "Sensor started")
             except Exception as e:
                 response = (False, f"Error starting sensor: {e}")
@@ -53,3 +55,31 @@ class Sensor:
             self.config["params"][param_name]["value"] = new_value
             return True, f"Parameter {param_name} updated to {new_value}"
         return False, f"Parameter {param_name} not found"
+
+    def generate_launch_file(self):
+        launch_dir = Path("config", "launchfiles")
+        launch_dir.mkdir(parents=True, exist_ok=True)
+        launch_path = launch_dir / f"{self.name.replace(' ', '_').lower()}.launch"
+
+        launch_lines = []
+        launch_lines.append("<launch>")
+        
+        for param_name, param_data in self.params.items():
+            value = param_data["value"]
+            launch_lines.append(f'  <arg name="{param_name}" default="{value}"/>')
+        
+        launch_lines.append(f'  <group ns="{self.name}">')
+        launch_lines.append(f'    <node name="{self.name}" pkg="{self.package_name}" type="{self.node_name}" output="screen">')
+
+        for param_name, param_data in self.params.items():
+            value = param_data["value"]
+            launch_lines.append(f'      <param name="{param_name}" value="$(arg {param_name})"/>')
+
+        launch_lines.append("    </node>")
+        launch_lines.append("  </group>")
+        launch_lines.append("</launch>")
+
+        with open(launch_path, "w") as f:
+            f.write("\n".join(launch_lines))
+        
+        return str(launch_path)

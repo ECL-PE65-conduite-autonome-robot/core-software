@@ -1,6 +1,6 @@
 # Import required modules and services 
 from core_py.sensor import Sensor
-from core_interfaces.srv import ReloadParams, StartSensor, StopSensor, GetConfig, SetStatus, SetMode, UpdateParam  # ROS 2 services 
+from core_interfaces.srv import Reboot, ReloadParams, StartSensor, StopSensor, GetConfig, SetStatus, SetMode, UpdateParam  # ROS 2 services 
 import rclpy
 from rclpy.node import Node
 import yaml
@@ -40,6 +40,39 @@ class LifeCycle(Node):
         self.launch_sensors() # Initialize sensors based on parameters 
         self.get_logger().info(f"Boot completed in {datetime.now() - self.__start_date} seconds.")
         self.running() # Transition to running state 
+    
+    def reboot(self, request, response):
+        """
+        Service callback to reboot the lifecycle node.
+        This method performs a soft reboot of the lifecycle by :
+        - Stopping all sensors
+        - Resetting the sensor list
+        - Reploading parameters
+        - Relaunching sensors
+        """
+        self.get_logger().info("Reboot requested. Initiating reboot sequence...")
+
+        # Stop all sensors
+        for sensor in self.sensors:
+            try:
+                sensor.stop_sensor()
+                self.get_logger().info(f"Sensor {sensor.name} stopped")
+            except Exception as e: 
+                self.get_logger().error(f"Error stopping sensor{sensor.name}: {e}")
+        
+        # Reset the sensor list
+        self.sensors = []
+
+        # Reload all parameters (static and dynamic)
+        self.load_parameters()
+
+        # Relaunch sensors according to the configuration 
+        self.launch_sensors()
+
+        response.success = True
+        response.message = "Lifecycle rebooted successfully"
+        return response
+        
 
     def running(self):
         # Log that the node is now running
@@ -59,11 +92,13 @@ class LifeCycle(Node):
         self.srv_get_config = self.create_service(GetConfig,'get_config',self.get_config)
         self.srv_set_mode = self.create_service(SetMode,'set_mode',self.set_mode)
         self.srv_set_status = self.create_service(SetStatus,'set_status',self.set_status)
+        self.srv_reboot = self.create_service(Reboot,'reboot',self.reboot)
         self.get_logger().info(f"Services launched !")
         
     def load_parameters(self):
         # Load parameters from YAML configuration files 
         self.get_logger().info(f"Loading parameters...")
+        self.get_logger().info(f"Config path: {self.__config_path.absolute()}")
 
         # Define the list of configuration files to load 
         config_files = ["static_params.yml", "dynamic_params.yml"]
@@ -71,7 +106,6 @@ class LifeCycle(Node):
         # Iterate over each configuration file
         for config_file in config_files:
             config_path = Path(self.__config_path, config_file)
-            print(config_path.absolute())
             if config_path.exists():
                 self.get_logger().info(f"Loading config: {config_path}")
                 
@@ -79,7 +113,7 @@ class LifeCycle(Node):
                     try:
                         # Load data from the YAML file and update the parameters dictionary 
                         config_data = yaml.safe_load(file)
-                        self.params.update(config_data)  # Stocke les paramètres
+                        self.params  = merge_dicts(self.params, config_data)  # Stocke les paramètres
                     except yaml.YAMLError as e:
                         self.get_logger().error(f"Error loading {config_path}: {e}")
             else:
@@ -129,7 +163,9 @@ class LifeCycle(Node):
             self.sensors.append(sensor)
             if sensor.enabled:
                 sensor.start_sensor() # Start the sensor if enabled 
-            self.get_logger().info(f"Sensor {sensor_name} launched!")
+                self.get_logger().info(f"Sensor {sensor_name} launched!")
+            else:
+                self.get_logger().info(f"Sensor {sensor_name} is disabled in config.")
         
         self.get_logger().info("(X/X) Sensors launched!")
     
@@ -265,7 +301,18 @@ class LifeCycle(Node):
         # Publish the message on the 'params_update' topic 
         self.params_pub.publish(msg)
         
-    
+
+def merge_dicts(d1, d2):
+    result = dict(d1)  # Make a shallow copy of the first dict
+    for key, value in d2.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = merge_dicts(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+
+
 # Main entry point for the script 
 def main(args=None):
     # Initalize rclpy 

@@ -1,0 +1,10 @@
+<launch>
+  <arg name="param1" default="1"/>
+  <arg name="param2" default="1.0"/>
+  <group ns="Astra Camera">
+    <node name="Astra Camera" pkg="astra_camera" type="astra_camera_node" output="screen">
+      <param name="param1" value="$(arg param1)"/>
+      <param name="param2" value="$(arg param2)"/>
+    </node>
+  </group>
+</launch>

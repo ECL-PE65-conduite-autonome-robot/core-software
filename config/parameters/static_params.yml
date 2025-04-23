@@ -5,7 +5,7 @@ astra_camera:
   package_name: astra_camera
   node_name: astra_camera_node
   launch_file: astra_camera.launch
-  enabled: false
+  enabled: true
   params:
     param1:
       type: int

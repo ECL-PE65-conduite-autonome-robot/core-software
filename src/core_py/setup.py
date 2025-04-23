@@ -10,6 +10,11 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/config/parameters', [
+            '../../config/parameters/dynamic_params.yml',
+            '../../config/parameters/static_params.yml',
+            # ajoute ici d'autres fichiers si besoin
+        ]),
         #('share/' + package_name + '/srv', ['srv/ReloadParams.srv', 'srv/StartSensor.srv', 'srv/StopSensor.srv']),
     ],
     install_requires=['setuptools'],

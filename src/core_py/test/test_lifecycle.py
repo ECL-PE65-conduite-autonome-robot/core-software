@@ -98,10 +98,10 @@ def test_reload_parameters(rclpy_node):
          String, '/params_update',
          lambda msg: received_msgs.append(msg),
          10)
-        
+    
     # Send request and wait for result
     future = client.call_async(request)
-    rclpy.spin_until_future_complete(rclpy_node, future)
+    rclpy.spin_until_future_complete(rclpy_node, future, timeout_sec=5.0)
 
     assert future.result() is not None, "Service call failed"
     response = future.result()
@@ -111,5 +111,5 @@ def test_reload_parameters(rclpy_node):
     # This is a blocking wait, adjust the timeout as needed
     timeout = time.time() + 5.0 # 5 seconds timeout
     while not received_msgs and time.time() < timeout:
-        rclpy.spin_once(rclpy_node, timeout_sec=0.1) # Spin to allow message processing
-    assert received_msgs, "Did not receive update params message on /params_update"
+        time.sleep(0.1)
+    assert len(received_msgs) != 0, "Did not receive update params message on /params_update"

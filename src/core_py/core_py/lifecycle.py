@@ -1,4 +1,5 @@
 # Import required modules and services 
+from ament_index_python import get_package_share_directory
 from core_py.sensor import Sensor
 from core_interfaces.srv import Reboot, ReloadParams, StartSensor, StopSensor, GetConfig, SetStatus, SetMode, UpdateParam  # ROS 2 services 
 import rclpy
@@ -20,7 +21,7 @@ class LifeCycle(Node):
         self.__status = 0  # Node status : 0 = Off, 1 = On, 2 = Pause
         self.__exit_requested = False  # Flag to indicate complete node shutdown requested
         self.params = {}  # Dictionary for storing parameters 
-        self.__config_path = Path("config", "parameters") # Path to the configuration files 
+        self.__config_path = Path(get_package_share_directory("core_py"), "config", "parameters") # Path to the configuration files 
         self.dynamic_config = {} # Dictionary for dynamic parameters 
         self.static_config = {} # Dictionary for static parameters
         self.srv_update_param = self.create_service(UpdateParam, 'update_param', self.update_param_callback)

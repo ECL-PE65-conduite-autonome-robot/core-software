@@ -1,0 +1,6 @@
+string sensor_name
+string[] param_names
+string[] new_values
+---
+bool success
+string message

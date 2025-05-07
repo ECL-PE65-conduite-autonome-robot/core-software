@@ -1,7 +1,7 @@
 # Import required modules and services 
 from ament_index_python import get_package_share_directory
 from core_py.sensor import Sensor
-from core_interfaces.srv import Reboot, ReloadParams, StartSensor, StopSensor, GetConfig, SetStatus, SetMode, UpdateParam  # ROS 2 services 
+from core_interfaces.srv import Reboot, ReloadParams, StartSensor, StopSensor, GetConfig, SetStatus, SetMode, UpdateParam, UpdateParams  # ROS 2 services 
 import rclpy
 from rclpy.node import Node
 import yaml
@@ -25,6 +25,7 @@ class LifeCycle(Node):
         self.dynamic_config = {} # Dictionary for dynamic parameters 
         self.static_config = {} # Dictionary for static parameters
         self.srv_update_param = self.create_service(UpdateParam, 'update_param', self.update_param_callback)
+        self.srv_update_params = self.create_service(UpdateParams, 'update_params', self.update_params_callback)  # Nouveau service
         self.sensors = [] # list to store sensor instances 
 
         # Start the lifecycle process
@@ -114,7 +115,13 @@ class LifeCycle(Node):
                     try:
                         # Load data from the YAML file and update the parameters dictionary 
                         config_data = yaml.safe_load(file)
-                        self.params  = merge_dicts(self.params, config_data)  # Stocke les paramètres
+                        # if static flag we add a requires_reboot key to each parameters in the config data
+                        if config_file == "static_params.yml":
+                            for _, sensor_config in config_data.items():
+                                for _, param_config in sensor_config["params"].items():
+                                    param_config["requires_reboot"] = True
+                        # Merge the loaded data into the main parameters dictionary
+                        self.params  = merge_dicts(self.params, config_data)
                     except yaml.YAMLError as e:
                         self.get_logger().error(f"Error loading {config_path}: {e}")
             else:
@@ -285,6 +292,132 @@ class LifeCycle(Node):
 
         return response
 
+    def update_params_callback(self, request, response):
+        """
+        Service pour mettre à jour plusieurs paramètres d'un même capteur.
+        request.sensor_name: str
+        request.param_names: list of str
+        request.new_values: list of str
+        """
+        sensor_name = request.sensor_name
+        param_names = request.param_names
+        new_values = request.new_values
+
+        if len(param_names) != len(new_values):
+            response.success = False
+            response.message = "param_names and new_values must have the same length"
+            return response
+
+        dynamic_config_path = Path(self.__config_path, "dynamic_params.yml")
+        static_config_path = Path(self.__config_path, "static_params.yml")
+        if not dynamic_config_path.exists() and not static_config_path.exists():
+            response.success = False
+            response.message = "dynamic_params.yml and static_params.yml not found"
+            return response
+        
+        self.get_logger().info(f"Updating parameters for sensor: {sensor_name}, params: {param_names}, values: {new_values}")
+
+        # Charger les configs dynamiques et statiques
+        dynamic_config = {}
+        static_config = {}
+        if dynamic_config_path.exists():
+            with open(dynamic_config_path, "r") as f:
+                dynamic_config = yaml.safe_load(f) or {}
+        if static_config_path.exists():
+            with open(static_config_path, "r") as f:
+                static_config = yaml.safe_load(f) or {}
+
+        errors = []
+        updated_params = {}
+        static_params_updated = []
+
+        # Vérifier la présence du capteur dans les configs
+        in_dynamic = sensor_name in dynamic_config
+        in_static = sensor_name in static_config
+        if not in_dynamic and not in_static:
+            response.success = False
+            response.message = "Sensor not found in config"
+            return response
+
+        for param_name, new_value in zip(param_names, new_values):
+            # Chercher d'abord dans dynamique, sinon dans statique
+            if in_dynamic and param_name in dynamic_config[sensor_name].get("params", {}):
+                param_type = dynamic_config[sensor_name]["params"][param_name]["type"]
+                try:
+                    if param_type == "int":
+                        casted_value = int(new_value)
+                    elif param_type == "float":
+                        casted_value = float(new_value)
+                    elif param_type == "string":
+                        casted_value = str(new_value)
+                    elif param_type == "bool":
+                        casted_value = bool(new_value)
+                    else:
+                        errors.append(f"{param_name}: unsupported type")
+                        continue
+                except Exception as e:
+                    errors.append(f"{param_name}: cast error ({e})")
+                    continue
+                dynamic_config[sensor_name]["params"][param_name]["value"] = casted_value
+                updated_params[param_name] = casted_value
+            elif in_static and param_name in static_config[sensor_name].get("params", {}):
+                param_type = static_config[sensor_name]["params"][param_name]["type"]
+                try:
+                    if param_type == "int":
+                        casted_value = int(new_value)
+                    elif param_type == "float":
+                        casted_value = float(new_value)
+                    elif param_type == "string":
+                        casted_value = str(new_value)
+                    elif param_type == "bool":
+                        casted_value = bool(new_value)
+                    else:
+                        errors.append(f"{param_name}: unsupported type")
+                        continue
+                except Exception as e:
+                    errors.append(f"{param_name}: cast error ({e})")
+                    continue
+                static_config[sensor_name]["params"][param_name]["value"] = casted_value
+                static_params_updated.append(param_name)
+            else:
+                errors.append(f"{param_name}: not found")
+                continue
+
+        # Sauvegarder les fichiers modifiés
+        if dynamic_config_path.exists():
+            with open(dynamic_config_path, "w") as f:
+                yaml.dump(dynamic_config, f)
+        if static_config_path.exists():
+            with open(static_config_path, "w") as f:
+                yaml.dump(static_config, f)
+
+        # Mise à jour sur l'instance du capteur uniquement pour les dynamiques
+        sensor_found = False
+        for sensor in self.sensors:
+            if sensor.name == sensor_name:
+                sensor_found = True
+                for pname, pvalue in updated_params.items():
+                    ok, msg = sensor.update_param(pname, pvalue)
+                    if not ok:
+                        errors.append(f"{pname}: {msg}")
+                break
+
+        if not sensor_found and updated_params:
+            response.success = False
+            response.message = "Sensor not instantiated"
+            return response
+
+        msg_parts = []
+        if errors:
+            msg_parts.append("; ".join(errors))
+        if static_params_updated:
+            msg_parts.append(f"Static params updated: {', '.join(static_params_updated)} (will apply after reboot)")
+        if updated_params and not errors:
+            msg_parts.append("All dynamic parameters updated")
+
+        response.success = not errors
+        response.message = " | ".join(msg_parts) if msg_parts else "All parameters updated"
+        return response
 
     def set_mode(self,request, response):
         # Service to change the operating mode (Manual, Autonomous, Debug)

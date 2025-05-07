@@ -88,6 +88,9 @@ Add them in:
 - config/parameters/satic_params.yml
 - config/parameters/dynamic_params.yml
 
+## Configuration
+
+Note: *The config folder is the default configurations which will be used during build, but during execution you should look at share/core_py/config for seeing live updates*
 
 
 ## Contributing

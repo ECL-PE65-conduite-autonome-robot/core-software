@@ -32,6 +32,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/GetConfig.srv"
   "srv/ChooseCamera.srv"
   "srv/UpdateParam.srv"
+  "srv/UpdateParams.srv"
   "srv/SetMode.srv"
   "srv/SetStatus.srv"
   "srv/Reboot.srv"

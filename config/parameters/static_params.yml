@@ -3,7 +3,7 @@ astra_camera:
   description: "This is a description"
   type: camera
   package_name: astra_camera
-  node_name: astra_camera_node
+  node_name: astra_camera
   launch_file: astra_camera.launch
   enabled: true
   params:

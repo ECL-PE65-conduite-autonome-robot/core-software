@@ -1,6 +1,8 @@
 import subprocess
 from pathlib import Path
 
+from ament_index_python import get_package_share_directory
+
 class Sensor:
     def __init__(self, config):
         self.config = config
@@ -57,7 +59,7 @@ class Sensor:
         return False, f"Parameter {param_name} not found"
 
     def generate_launch_file(self):
-        launch_dir = Path("config", "launchfiles")
+        launch_dir = Path(get_package_share_directory(self.node_name), "config", "launchfiles")
         launch_dir.mkdir(parents=True, exist_ok=True)
         launch_path = launch_dir / f"{self.name.replace(' ', '_').lower()}.launch"
 

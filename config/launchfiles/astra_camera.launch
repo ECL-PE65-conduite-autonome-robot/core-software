@@ -13,20 +13,20 @@
   <arg name="depth_roi_y" default="-1"/>
   <arg name="device_num" default="1"/>
   <arg name="enable_color" default="True"/>
-  <arg name="enable_d2c_viewer" default="False"/>
-  <arg name="enable_keep_alive" default="False"/>
+  <arg name="enable_d2c_viewer" default="True"/>
+  <arg name="enable_keep_alive" default="True"/>
   <arg name="enable_point_cloud" default="True"/>
-  <arg name="enable_point_cloud_xyzrgb" default="False"/>
-  <arg name="enable_publish_extrinsic" default="False"/>
+  <arg name="enable_point_cloud_xyzrgb" default="True"/>
+  <arg name="enable_publish_extrinsic" default="True"/>
   <arg name="ir_info_uri" default=""/>
   <arg name="oni_log_level" default="verbose"/>
-  <arg name="oni_log_to_console" default="False"/>
-  <arg name="oni_log_to_file" default="False"/>
+  <arg name="oni_log_to_console" default="True"/>
+  <arg name="oni_log_to_file" default="True"/>
   <arg name="product_id" default="0"/>
   <arg name="serial_number" default=""/>
   <arg name="use_uvc_camera" default="True"/>
   <arg name="uvc_camera_format" default="mjpeg"/>
-  <arg name="uvc_flip" default="False"/>
+  <arg name="uvc_flip" default="True"/>
   <arg name="uvc_product_id" default="0x0501"/>
   <arg name="uvc_retry_count" default="100"/>
   <arg name="uvc_vendor_id" default="0x2bc5"/>

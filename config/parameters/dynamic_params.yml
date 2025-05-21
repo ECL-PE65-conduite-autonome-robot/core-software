@@ -2,7 +2,7 @@ astra_camera:
   name: Astra Camera
   description: "This is a description"
   package_name: astra_camera
-  node_name: astra_camera_node
+  node_name: astra_camera
   launch_file: astra_camera.launch
   params:
     color_width:
